@@ -1,0 +1,22 @@
+{
+  "name": "api-automation",
+  "version": "1.0.0",
+  "description": "A Cypress-powered API automation framework that covers all HTTP methods — `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, and more. The project focuses on method-wise test structuring, clear separation of test logic, and extensive coverage of API behavior in various scenarios.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theibrarahmad/api-automation.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/theibrarahmad/api-automation/issues"
+  },
+  "homepage": "https://github.com/theibrarahmad/api-automation#readme",
+  "devDependencies": {
+    "cypress": "^14.5.3"
+  }
+}
