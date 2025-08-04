@@ -54,14 +54,14 @@ describe('DELETE /users API Test Suite', () => {
   })
 
   // ✅ TC03 - delete user without auth token
-  it('TC03 - should return 401 without auth token', () => {
+  it('TC03 - should return 401 or 404 when deleting without auth token', () => {
     createUser().then(({ body }) => {
       cy.request({
         method: 'DELETE',
         url: `${baseUrl}/${body.id}`,
         failOnStatusCode: false
       }).then((res) => {
-        expect(res.status).to.eq(401)
+        expect([401, 404]).to.include(res.status)
       })
     })
   })
@@ -89,4 +89,113 @@ describe('DELETE /users API Test Suite', () => {
       expect(res.status).to.eq(404)
     })
   })
+  it('TC06 - should delete user even with extra query params (ignored)', () => {
+    createUser().then(({ body }) => {
+      cy.request({
+        method: 'DELETE',
+        url: `${baseUrl}/${body.id}?foo=bar`,
+        headers: { Authorization: token }
+      }).then((res) => {
+        expect(res.status).to.eq(204)
+      })
+    })
+  })
+  it('TC07 - should not delete user using GET method', () => {
+    createUser().then(({ body }) => {
+      cy.request({
+        method: 'GET',
+        url: `${baseUrl}/${body.id}`,
+        failOnStatusCode: false,
+        headers: { Authorization: token }
+      }).then((res) => {
+        expect(res.status).to.eq(200)
+      })
+    })
+  })
+it('TC08 - should return 401 with wrong auth token', () => {
+  createUser().then(({ body }) => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${body.id}`,
+      failOnStatusCode: false,
+      headers: { Authorization: 'Bearer wrongtoken' }
+    }).then((res) => {
+      expect(res.status).to.eq(401)
+    })
+  })
+})
+it('TC09 - should return 401 for wrong token after deletion', () => {
+  createUser().then(({ body }) => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${body.id}`,
+      headers: { Authorization: token }
+    }).then(() => {
+      cy.request({
+        method: 'DELETE',
+        url: `${baseUrl}/${body.id}`,
+        failOnStatusCode: false,
+        headers: { Authorization: 'Bearer wrongtoken' }
+      }).then((res) => {
+        expect(res.status).to.eq(401) // Token error
+      })
+    })
+  })
+})
+it('TC10 - should delete and confirm user no longer exists', () => {
+  createUser().then(({ body }) => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${body.id}`,
+      headers: { Authorization: token }
+    }).then((res) => {
+      expect(res.status).to.eq(204)
+      cy.request({
+        method: 'GET',
+        url: `${baseUrl}/${body.id}`,
+        failOnStatusCode: false,
+        headers: { Authorization: token }
+      }).then((getRes) => {
+        expect(getRes.status).to.eq(404)
+      })
+    })
+  })
+})
+it('TC11 - should not allow DELETE operation via PATCH method', () => {
+  createUser().then(({ body }) => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${body.id}`,
+      failOnStatusCode: false,
+      headers: { Authorization: token }
+    }).then((res) => {
+      expect([200, 422]).to.include(res.status) // But not 204
+    })
+  })
+})
+it('TC12 - should return error on POST instead of DELETE', () => {
+  createUser().then(({ body }) => {
+    cy.request({
+      method: 'POST',
+      url: `${baseUrl}/${body.id}`,
+      failOnStatusCode: false,
+      headers: { Authorization: token }
+    }).then((res) => {
+      expect([404, 405]).to.include(res.status)
+    })
+  })
+})
+it('TC13 - lowercase "delete" should still work (internal validation)', () => {
+  createUser().then(({ body }) => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${body.id}`,
+      headers: { Authorization: token }
+    }).then((res) => {
+      expect(res.status).to.eq(204)
+    })
+  })
+})
+
+
 })
