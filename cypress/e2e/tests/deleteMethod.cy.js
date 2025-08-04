@@ -196,6 +196,24 @@ it('TC13 - lowercase "delete" should still work (internal validation)', () => {
     })
   })
 })
-
-
+it('TC14 - should delete two users back-to-back', () => {
+  createUser().then(({ body: firstUser }) => {
+    createUser().then(({ body: secondUser }) => {
+      cy.request({
+        method: 'DELETE',
+        url: `${baseUrl}/${firstUser.id}`,
+        headers: { Authorization: token }
+      }).then((res1) => {
+        expect(res1.status).to.eq(204)
+        cy.request({
+          method: 'DELETE',
+          url: `${baseUrl}/${secondUser.id}`,
+          headers: { Authorization: token }
+        }).then((res2) => {
+          expect(res2.status).to.eq(204)
+        })
+      })
+    })
+  })
+})
 })
