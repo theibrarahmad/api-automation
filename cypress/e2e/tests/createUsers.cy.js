@@ -4,21 +4,41 @@ describe('POST /users API Test Suite', () => {
     const baseUrl = 'https://gorest.co.in/public/v2/users'
     const token = 'Bearer e97e7e2430dee85cf6a2c6074def340e7a8c8734e9bed57a9298306af29a7ef7'
 
+    let userCount = 0
+
+    const maleFirstNames = ['Ali', 'Ahmed', 'Usman', 'Bilal', 'Omar', 'Saad', 'Kashif', 'Faisal', 'Zubair', 'Hamza']
+    const femaleFirstNames = ['Sara', 'Fatima', 'Ayesha', 'Zara', 'Hina', 'Rabia', 'Maryam', 'Laiba', 'Nimra', 'Mina']
+    const lastNames = ['Khan', 'Malik', 'Sheikh', 'Raza', 'Butt', 'Chaudhry', 'Syed', 'Farooq', 'Niazi', 'Javed']
+
     const getRandomUser = () => {
-        const random = Math.floor(Math.random() * 10000)
+        userCount++
+        const gender = userCount % 2 === 0 ? 'female' : 'male'
+
+        const firstName = gender === 'male'
+            ? maleFirstNames[Math.floor(Math.random() * maleFirstNames.length)]
+            : femaleFirstNames[Math.floor(Math.random() * femaleFirstNames.length)]
+
+        const lastName = lastNames[Math.floor(Math.random() * lastNames.length)]
+
+        const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}${userCount}@gmail.com`
+
         return {
-            name: `Test User ${random}`,
-            email: `testuser${random}@mail.com`,
-            gender: 'male',
+            name: `${firstName} ${lastName}`,
+            email: email,
+            gender: gender,
             status: 'active'
         }
     }
+
+
+
 
     // ✅ Positive Test Cases
     it('TC01 - should create a new user successfully', () => {
         const userData = getRandomUser()
         cy.request({ method: 'POST', url: baseUrl, headers: { Authorization: token, 'Content-Type': 'application/json' }, body: userData })
             .then((res) => {
+                cy.log(JSON.stringify(res))
                 expect(res.status).to.eq(201)
                 expect(res.body.email).to.eq(userData.email)
             })
@@ -35,6 +55,7 @@ describe('POST /users API Test Suite', () => {
                     headers: { Authorization: token, 'Content-Type': 'application/json' },
                     body: userData
                 }).then((res2) => {
+                    cy.log(JSON.stringify(res2))
                     expect(res2.status).to.eq(422)
                     expect(res2.body[0].field).to.eq('email')
                 })
@@ -45,6 +66,7 @@ describe('POST /users API Test Suite', () => {
         const user = getRandomUser()
         cy.request({ method: 'POST', url: baseUrl, headers: { Authorization: token, 'Content-Type': 'application/json' }, body: user })
             .then((res) => {
+                cy.log(JSON.stringify(res))
                 expect(res.status).to.eq(201)
                 expect(res.body.name).to.eq(user.name)
             })
@@ -54,6 +76,7 @@ describe('POST /users API Test Suite', () => {
         const user = getRandomUser()
         cy.request({ method: 'POST', url: baseUrl, headers: { Authorization: token, 'Content-Type': 'application/json' }, body: user })
             .then((res) => {
+                cy.log(JSON.stringify(res))
                 expect(res.status).to.eq(201)
                 expect(res.body.name).to.eq(user.name)
             })
@@ -364,4 +387,4 @@ describe('POST /users API Test Suite', () => {
         })
 
     })
-    })
+})
