@@ -1,4 +1,3 @@
-// cypress/e2e/api/createUser.cy.js
 
 describe('POST /users API Test Suite', () => {
     const baseUrl = 'https://gorest.co.in/public/v2/users'
